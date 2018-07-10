@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/mui.picker.css" rel="stylesheet" />
+		<link href="css/mui.poppicker.css" rel="stylesheet" />
+	</head>
+	<body>
+		<header id="header" class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" ></a>
+			<a class="ui-btn mui-btn-blue mui-btn-link mui-pull-right" id="saveData">保存</a>
+			<h1 class="mui-title">添加训练计划</h1>
+		</header>
+		<div class="mui-content">
+				<form class="mui-input-group">
+					<div class="mui-input-row">
+						<label>训练项目</label>
+						<input type="text" id="workoutName" value="Bill" placeholder="训练名称">
+					</div>
+					<div class="mui-content-padded">
+						<h5 class="mui-content-padded">时间循环</h5>
+						<button id='showUserPicker' class="mui-btn mui-btn-block" type='button'>练习时间</button>
+						<div id='userResult' class="ui-alert"></div>
+						<button id='restTimePicker' class="mui-btn mui-btn-block" type='button'>休息时间</button>
+						<div id='restTimerResult' class="ui-alert"></div>
+						<button id='groupsPicker' class="mui-btn mui-btn-block" type='button'>组数</button>
+						<div id='groupsResult' class="ui-alert"></div>
+					</div>
+				</form>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/mui.picker.js"></script>
+		<script src="js/mui.poppicker.js"></script>
+		<script src="js/timeDate.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="js/immersed.js" ></script>
+		<script type="text/javascript">
+				(function($, doc) {
+				$.init();
+				$.plusReady(function() {
+					var workoutName
+						,workoutTimeMin
+						,workouTimeSec
+						,restTimeMin
+						,restTimeSec
+						,groups
+						,saveData=doc.getElementById('saveData');
+						
+						
+
+					//普通示例
+						var userPicker = new $.PopPicker({
+						layer:2
+						});
+						userPicker.setData(timeData);
+						var showUserPickerButton = doc.getElementById('showUserPicker')
+							,restTimePicker =doc.getElementById('restTimePicker')
+							,groupsPicker =doc.getElementById('groupsPicker');
+						showUserPickerButton.addEventListener('tap', function(event) {
+						userPicker.show(function(items) {
+							workoutTimeMin=items[0].text;
+							workouTimeSec=Number(workoutTimeMin*60)+Number(items[1].text)
+							showUserPickerButton .innerText = "锻炼" + items[0].text + "分：" +items[1].text+"秒";
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+						}, false);
+						var restDataPicker = new $.PopPicker({
+						layer:2
+						});
+						restDataPicker.setData(timeData);
+						restTimePicker.addEventListener('tap', function(event) {
+						restDataPicker.show(function(items) {
+							restTimePicker .innerText = "休息" + items[0].text + "分：" + items[1].text+"秒";
+							restTimeMin=items[0].text;
+							restTimeSec=Number(restTimeMin*60)+Number(items[1].text)
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+						}, false);
+						var groupsDataPicker = new $.PopPicker({
+						layer:1
+						});
+						groupsDataPicker.setData(groupsData)
+						groupsPicker.addEventListener('tap', function(event) {
+						groupsDataPicker .show(function(items) {
+							groupsPicker.innerText = "你选择的组数是" + items[0].text+"组";
+							groups=items[0].text;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+						}, false);
+	
+//					    var info = {
+//      							workTime: new Number(workouTimeSec),
+//     								restTime: new Number(restTimeSec),
+//      							groups: new Number(groups)
+//  								};
+					saveData.addEventListener('tap',function(){
+						var info ={ 
+							workTime:new Number(workouTimeSec),
+							restTime:new Number(restTimeSec),
+							groups:new Number(groups)
+						};
+						//把值写入LOCALstorage
+							workoutName=doc.getElementById('workoutName').value;
+							plus.storage.setItem( workoutName, JSON.stringify(info));
+							//返回INDEX并刷新INDEX
+						var wvIndex = plus.webview.getLaunchWebview();
+       						wvIndex.reload();
+       						mui.back();
+							console.log(JSON.stringify(info))
+							console.log(workoutName)
+					})
+				});
+			})(mui, document);
+		</script>
+		</script>
+	</body>
+
+</html>

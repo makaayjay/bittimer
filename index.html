@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset="utf-8"/>
+		 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="js/common.js"></script>
+		<script src="js/mui.min.js"></script>
+    	<link href="css/mui.min.css" rel="stylesheet"/>
+    	<link href="css/index.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+var ws=null,wp=null,wo=null;
+// H5 plus事件处理
+//function plusReady(){
+//	ws=plus.webview.currentWebview();
+//	wo=ws.opener();
+//	wp=plus.webview.create('edit.html','edit.html',{scrollIndicator:'none',scalable:false,popGesture:'none'},{preate:true});
+//	wp.addEventListener('close',function(){
+//		wp=null;
+//	},false);
+//}
+//if(window.plus){
+//	plusReady();
+//}else{
+//	document.addEventListener('plusready',plusReady,false);
+//}
+//// 动画窗口
+//function animateWindow(type){
+//	wp||(wp=plus.webview.create('edit.html','edit.html',{scrollIndicator:'none',scalable:false,popGesture:'none'},{preate:true}));
+//	wp.show(type);
+//}
+//// 关闭窗口
+//var _back=window.back;
+//function preateBack(){
+//	wp&&(wp.close(),wp=null);
+//	_back();
+//}
+//window.back=preateBack;
+		</script>
+<!--		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>-->
+	</head>
+	<body>
+		<header id="header" class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">HIT-TIMER</h1>
+		</header>
+		<div class="mui-content">
+			<h5 class="mui-content-padded" style="margin: 35px 10px 15px 10px;">点击按钮添加锻炼事件</h5>
+			<ul id="OA_task_1" class="mui-table-view">
+				<li class="mui-table-view-cell" >
+					<div class="mui-slider-right mui-disabled">
+						<a class="mui-btn mui-btn-green">编辑</a>
+						<a class="mui-btn mui-btn-red">删除</a>
+					</div>
+					<div class="mui-slider-handle" onclick="openWorking()">
+						<div id="tableCellDiv" class="mui-table-cell">
+							新建训练计划
+						</div>
+					</div>
+				</li>
+			</ul>
+	</div>
+	<div class="icon-plus">
+		<a id="edit.html" onclick="clicked(this.id)"><span class="mui-icon mui-icon-plus icon-plus-btn"></span></a>
+	</div>
+	    <script type="text/javascript" charset="utf-8">
+	   mui.init({
+  		preloadPages:[
+    	{
+     		url:"edit.html",
+      		id:"edit",
+    	}
+  		],
+  		preloadLimit:5//预加载窗口数量限制(一旦超出,先进先出)默认不限制
+		});
+		var openWorking=function (e) {
+			console.log(e)
+			var keyName=e.parentNode.getAttribute("id")
+			
+//		  打开关于页面
+		  mui.openWindow({
+		    url: 'working.html', 
+		    id:'working.html',
+		        show:{
+			      autoShow:true,//页面loaded事件发生后自动显示，默认为true
+			      aniShow:'slide-in-right',//页面显示动画，默认为”slide-in-right“；
+		     //页面动画持续时间，Android平台默认100毫秒，iOS平台默认200毫秒；
+		    	},
+		    extras:{
+        		name:keyName,
+        		version:'0.5.8'
+    		}
+		  });
+		};
+      	(function($) {
+      				$('#OA_task_1').on('tap', '.mui-btn', function(event) {
+					var elem = this;
+					var li = elem.parentNode.parentNode;
+					var key=li.getAttribute("id")
+					mui.confirm('确认删除该条记录？', 'Hello MUI', btnArray, function(e) {
+						if (e.index == 0) {
+							li.parentNode.removeChild(li);
+							plus.storage.removeItem(key)
+						} else {
+							setTimeout(function() {
+								$.swipeoutClose(li);
+						}, 0);
+						}
+					});
+				});
+				var btnArray = ['确认', '取消'];
+				
+      })(mui);
+       	(function($, doc) {
+				$.init();
+				$.plusReady(function() {
+					var length = getLengthFun();
+					function getLengthFun(){
+						return plus.storage.getLength();
+					}
+					for(var i=0; i<length; i++ ){
+						document.getElementById('OA_task_1').innerHTML+="<li id='"+plus.storage.key(i)+"'  class='mui-table-view-cell'><div class='mui-slider-right mui-disabled'><a class='mui-btn mui-btn-green'>编辑</a><a class='mui-btn mui-btn-red'>删除</a></div><div class='mui-slider-handle' onclick='openWorking(this)'><div id='tableCellDiv' class='mui-table-cell'>" +plus.storage.key(i)+ "</div></div></li>"
+					}
+      			});
+		})(mui, document);
+    </script>
+    	<script type="text/javascript" src="js/immersed.js" ></script>
+	</body>
+</html>

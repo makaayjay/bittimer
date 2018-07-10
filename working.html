@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/working.css" />
+    <link href="css/mui.min.css" rel="stylesheet" />
+	<link href="css/mui.picker.css" rel="stylesheet" />
+	<link href="css/mui.poppicker.css" rel="stylesheet" />
+</head>
+<body <!--onload="load()-->">
+		<header id="header" class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" >返回</a>
+			<h1 class="mui-title">训练</h1>
+		</header>
+		<div class="mui-content">
+    		<div>
+        		<div class="workWrap">
+            		<div id="myDiv" class="myDiv" >练习
+            		</div>
+        		</div>
+        		<div class="restWrap">
+        			<div id="restDiv" class="restDiv">休息</div>
+        		</div>
+    		</div>
+    	<div class="downPart">
+        	<div class="btnDiv">
+	            <button id="btn" class="running" >start</button>
+	            <button class="pause" onclick="doPause()" id="tid" style="display: none" >暂停</button>
+	            <button  class="pause"  onclick="restPause()" id="rid" style="display: none" >暂停</button>
+        	</div>
+        	<div id="groupDiv"></div>
+    	</div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/mui.picker.js"></script>
+		<script src="js/mui.poppicker.js"></script>
+		<script src="js/timeDate.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="js/immersed.js" ></script>
+<script>
+	mui.init({
+		gestureConfig:{
+			swiperight: true
+		}
+	});
+	
+    var timer
+        ,restTimer
+        ,groups=null
+        ,btn=document.getElementById("btn")
+        ,myDiv=document.getElementById("myDiv")
+        ,restDiv=document.getElementById("restDiv")
+        ,groupDiv=document.getElementById("groupDiv")
+        ,tid=document.getElementById("tid")
+        ,rid=document.getElementById("rid")
+        ,workoutTime=null
+        ,restTime=null
+        , myWidth=100
+        , parts=[]
+        ,one_ms = 1000
+        , one_s = one_ms * 60
+        , one_min = one_s * 60
+        , elapsed
+        , rest
+	mui.plusReady(function(){
+		plus.webview.currentWebview();
+		var self = plus.webview.currentWebview();
+		var name = self.name;
+		var obj=plus.storage.getItem(name)
+		var txt=JSON.parse(obj)
+		groups=txt.groups
+		workoutTime=txt.workTime
+		restTime=txt.restTime
+		elapsed =workoutTime*60000
+		rest=restTime*60000;
+		groupDiv.innerHTML="还剩"+groups+"组"
+		console.log(name)
+		console.log(txt.restTime)
+	});
+//var  parts=[]
+//      ,one_ms = 1000
+//      , one_s = one_ms * 60
+//      , one_min = one_s * 60
+//      , elapsed = Number(workoutTime)*60000
+//      , rest=Number(restTime)*60000;
+//  function load()
+//  {
+//      
+//  }
+    btn.onclick = function star(){
+        timer = requestAnimationFrame(function fn(){
+            if(elapsed >0&&rest==restTime*60000){
+                
+                btn.style.display="none"
+                tid.style.display="block"
+                rid.style.display="none"
+                myWidth=myWidth - 10/(workoutTime*6)//经过复杂的计算得出宽度在规定时间范围workouttime内减为0
+                myDiv.style.width = myWidth+ '%';
+                elapsed=elapsed-1000;
+                parts[0] = '' + Math.floor( elapsed / one_min );
+                parts[1] = '' + Math.floor( (elapsed % one_min) / one_s);
+                parts[2] = '' + Math.floor( ( (elapsed % one_min) % one_s) / one_ms);
+                parts[0] = (parts[0].length == 1) ? '0' + parts[0] : parts[0];
+                parts[1] = (parts[1].length == 1) ? '0' + parts[1] : parts[1];
+                parts[2] = (parts[2].length == 1) ? '0' + parts[2] : parts[2];
+                var part=parts.join(":")
+                myDiv.innerHTML =part;
+                timer = requestAnimationFrame(fn);
+            }else if (elapsed ==0) {
+                btn.style.display="none"
+                tid.style.display="none"
+                groups=groups-1;
+                groupDiv.innerHTML ="还剩"+groups+"组";
+                elapsed = workoutTime*60000;
+                myWidth=100;
+                myDiv.style.width = myWidth+ '%';
+                myDiv.innerHTML =workoutTime+"s";
+                cancelAnimationFrame(timer);
+                restTimer=requestAnimationFrame(function rt() {
+                    if(groups==0){
+                        cancelAnimationFrame(timer);
+                        cancelAnimationFrame(restTimer)
+                        return
+                    }
+                    tid.style.display="none"
+                    btn.style.display="none"
+                    rid.style.display="block"
+                    myWidth=myWidth - 10/(restTime*6)
+                    restDiv.style.width = myWidth+ '%';
+                    rest=rest-1000
+                    parts[0] = '' + Math.floor( rest / one_min );
+                    parts[1] = '' + Math.floor( (rest % one_min) / one_s);
+                    parts[2] = '' + Math.floor( ( (rest % one_min) % one_s) / one_ms);
+                    parts[0] = (parts[0].length == 1) ? '0' + parts[0] : parts[0];
+                    parts[1] = (parts[1].length == 1) ? '0' + parts[1] : parts[1];
+                    parts[2] = (parts[2].length == 1) ? '0' + parts[2] : parts[2];
+                    var restPart=parts.join(":")
+                    restDiv.innerHTML =restPart
+                    restTimer=requestAnimationFrame(rt)
+                    if (rest==0){
+                        myWidth=100;
+                        restDiv.style.width = myWidth+ '%';
+                        restDiv.innerHTML =restTime+"s";
+                        rest=restTime*60000;
+                        cancelAnimationFrame(restTimer)
+                        requestAnimationFrame(fn);
+                    }
+                })
+            }else if(elapsed==workoutTime*60000 && rest<restTime*60000){
+                restTimer=requestAnimationFrame(function rt() {
+                    if(groups==0){
+                        cancelAnimationFrame(timer);
+                        cancelAnimationFrame(restTimer)
+                        return
+                    }
+                    tid.style.display="none"
+                    btn.style.display="none"
+                    rid.style.display="block"
+                    myWidth=myWidth - 10/(restTime*6);
+                    restDiv.style.width = myWidth+ '%';
+                    rest=rest-1000
+                    parts[0] = '' + Math.floor( rest / one_min );
+                    parts[1] = '' + Math.floor( (rest % one_min) / one_s);
+                    parts[2] = '' + Math.floor( ( (rest % one_min) % one_s) / one_ms);
+                    parts[0] = (parts[0].length == 1) ? '0' + parts[0] : parts[0];
+                    parts[1] = (parts[1].length == 1) ? '0' + parts[1] : parts[1];
+                    parts[2] = (parts[2].length == 1) ? '0' + parts[2] : parts[2];
+                    var restPart=parts.join(":")
+                    restDiv.innerHTML =restPart
+                    restTimer=requestAnimationFrame(rt)
+                    if (rest==0){
+                        myWidth=100;
+                        restDiv.style.width = myWidth+ '%';
+                        restDiv.innerHTML =restTime+"s";
+                        rest=restTime*60000;
+                        cancelAnimationFrame(restTimer)
+                        requestAnimationFrame(fn);
+                    }
+                })
+            }
+        });
+    }
+    function doPause(){
+        console.log(timer)
+        if(timer!=null){
+            console.log(timer)
+            cancelAnimationFrame(timer);
+            timer=null;
+        }
+       tid.style.display="none"
+        btn.style.display="block"
+        rid.style.display="none"
+    }
+    function restPause(){
+        if(restTimer!=null){
+            cancelAnimationFrame(restTimer);
+            restTimer=null;
+        }
+        console.log(rest)
+        console.log(elapsed)
+        tid.style.display="none"
+        btn.style.display="block"
+        rid.style.display="none"
+    }
+</script>
+</body>
+</html>

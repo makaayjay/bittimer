@@ -1,0 +1,10 @@
+   .icon-plus{
+
+	margin: 40px 0 30px 0;
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+}
+.icon-plus-btn{
+	font-size: 54px;
+}
